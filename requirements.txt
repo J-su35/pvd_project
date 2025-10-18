@@ -1,0 +1,4 @@
+playwright==1.38.0
+gspread==5.9.0
+google-auth==2.20.0
+requests==2.31.0
