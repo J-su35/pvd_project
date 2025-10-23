@@ -23,6 +23,7 @@ jobs:
       - name: Install Python deps
         run: |
           pip install --upgrade pip
+          pip install -r requirements.txt
           pip install playwright requests
 
       - name: Run scraper
