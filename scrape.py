@@ -1,9 +1,8 @@
 import os, asyncio, json, sys, traceback
-import requests
-import gspread
 from datetime import datetime
 from playwright.async_api import async_playwright
-from google.oauth2.service_account import Credentials
+# from google.oauth2.service_account import Credentials
+from playwright.sync_api import TimeoutError as PWTimeout
 
 LOGIN_URL = os.getenv("LOGIN_URL")
 USERNAME = os.getenv("USERNAME")
@@ -117,8 +116,8 @@ async def main():
             # 3) จัดการล็อกอิน (จำรหัสแล้ว/หรือกรอกใหม่)
             await login_if_needed(page)
 
-            # 4) ไปหน้า Port ตรง ๆ (กันกรณีอยู่หน้าหลักหลังล็อกอิน)
-            await page.goto(PORT_URL, wait_until="networkidle")
+            # 4) ไปหน้า
+            # await page.goto(PORT_URL, wait_until="networkidle")  #ไปหน้า Port ตรง ๆ 
             await page.wait_for_url("**/account/user/port*", timeout=15000)
 
             # 5) ดึงค่า 'ผลตอบแทน'
