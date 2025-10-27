@@ -1,15 +1,12 @@
-import os, asyncio, json, sys, traceback
+import os, asyncio, sys, re, traceback
 from datetime import datetime
 from playwright.async_api import async_playwright
-# from google.oauth2.service_account import Credentials
 from playwright.sync_api import TimeoutError as PWTimeout
+from utils.gsheets_client import append_to_sheet
 
 LOGIN_URL = os.getenv("LOGIN_URL")
 USERNAME = os.getenv("USERNAME")
-PASSWORD = os.getenv("PASSWORD")
-
-SHEET_KEY = os.getenv("SHEET_KEY")        # Google Sheet ID (optional)
-GCP_SA_JSON = os.getenv("GCP_SA_JSON")    # service account json string (optional)
+PASSWORD = os.getenv("PASSWORD")   
 
 # optional: LINE Notify token
 # LINE_NOTIFY_TOKEN = os.getenv("LINE_NOTIFY_TOKEN")  
@@ -121,6 +118,10 @@ async def main():
             # 6) บันทึกลงไฟล์ log (หรือส่งต่อ Google Sheets ตามที่ทำไว้ก่อนหน้า)
             with open("PVD Rate of return.csv", "a", encoding="utf-8") as f:
                 f.write(f"{datetime.now().isoformat()},{ret_val}\n")
+
+            num = re.sub(r"[^\d.\-]", "", ret_val or "")
+            float_val = float(num) if num else None
+            append_to_sheet([datetime.now().isoformat(), ret_val, float_val])
 
             await browser.close()
 

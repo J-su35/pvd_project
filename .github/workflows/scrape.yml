@@ -17,9 +17,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Setup Playwright browsers
-        uses: microsoft/playwright-github-action@v1
-
       - name: Install Python deps
         run: |
           pip install --upgrade pip
@@ -27,7 +24,7 @@ jobs:
           pip install -r requirements.txt
       
       - name: Install Playwright Browsers
-        run: playwright install
+        run: python -m playwright install --with-deps
 
       - name: Run scraper
         env:
@@ -44,4 +41,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: scrape-logs
-          path: PVD Rate of return.csv
+          path: |
+            PVD Rate of return.csv
+            debug_port.png
