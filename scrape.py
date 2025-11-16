@@ -1,4 +1,4 @@
-import os, asyncio, sys, re, traceback
+import os, asyncio, sys, re, traceback, requests
 from datetime import datetime
 from playwright.async_api import async_playwright
 from playwright.sync_api import TimeoutError as PWTimeout
@@ -7,23 +7,24 @@ from utils.gsheets_client import append_to_sheet
 LOGIN_URL = os.getenv("LOGIN_URL")
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")   
+LINE_NOTIFY_TOKEN = os.getenv("LINE_NOTIFY_TOKEN")  
+UUID = os.getenv("UUID")  
 
-# optional: LINE Notify token
-# LINE_NOTIFY_TOKEN = os.getenv("LINE_NOTIFY_TOKEN")  
-
-# helper: notify via LINE
-# def line_notify(msg: str):
-#     if not LINE_NOTIFY_TOKEN:
-#         return
-#     try:
-#         requests.post(
-#             "https://notify-api.line.me/api/notify",
-#             headers={"Authorization": "Bearer " + LINE_NOTIFY_TOKEN},
-#             data={"message": msg},
-#             timeout=10
-#         )
-#     except Exception:
-#         pass
+# notify via LINE
+def line_notify(msg: str):
+    if not LINE_NOTIFY_TOKEN:
+        return
+    try:
+        requests.post(
+            "https://api.line.me/v2/bot/message/push",
+               
+            headers={"Authorization": "Bearer " + LINE_NOTIFY_TOKEN},
+            data={"to": UUID, "message": msg},
+            timeout=10
+        )
+    except Exception:
+        print("ERROR LINE Messaging API")
+        pass
 
 async def accept_risk_popup_if_any(page):
     try:
@@ -125,16 +126,16 @@ async def main():
 
             await browser.close()
 
-            # optional: LINE Notify
-            # line_notify(f"Scrape success: {ret_val}")
+
+            line_notify(f"Scrape success: {ret_val}")
             print("SUCCESS:", ret_val)
 
     except Exception as e:
         tb = traceback.format_exc()
         print("ERROR:", e, file=sys.stderr)
         print(tb, file=sys.stderr)
-        # optional: LINE Notify
-        # line_notify(f"Scrape ERROR: {e}")
+
+        line_notify(f"Scrape ERROR: {e}")
         raise
 
 if __name__ == "__main__":
