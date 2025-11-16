@@ -33,6 +33,8 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
           SHEET_KEY: ${{ secrets.SHEET_KEY }}
           GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
+          LINE_NOTIFY_TOKEN: ${{ secrets.LINE_NOTIFY_TOKEN }}
+          UUID: ${{ secrets.UUID }}
         run: |
           python scrape.py
 
