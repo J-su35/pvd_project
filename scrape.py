@@ -1,4 +1,4 @@
-import os, asyncio, sys, re, traceback, requests
+import os, asyncio, sys, re, traceback, requests, json
 from datetime import datetime
 from playwright.async_api import async_playwright
 from playwright.sync_api import TimeoutError as PWTimeout
@@ -12,19 +12,31 @@ UUID = os.getenv("UUID")
 
 # notify via LINE
 def line_notify(msg: str):
-    if not LINE_NOTIFY_TOKEN:
+    if not LINE_NOTIFY_TOKEN or not UUID:
+        print("LINE config missing")
         return
-    try:
-        requests.post(
-            "https://api.line.me/v2/bot/message/push",
-               
-            headers={"Authorization": "Bearer " + LINE_NOTIFY_TOKEN},
-            data={"to": UUID, "message": msg},
-            timeout=10
-        )
-    except Exception:
-        print("ERROR LINE Messaging API")
-        pass
+    
+    body = {
+        "to": UUID,
+        "messages": [
+            {
+                "type": "text",
+                "text": msg,
+            }
+        ]
+    }
+
+    res = requests.post(
+        "https://api.line.me/v2/bot/message/push",
+        headers={
+            "Authorization": "Bearer " + LINE_NOTIFY_TOKEN,
+            "Content-Type": "application/json"
+        },
+        data=json.dumps(body),
+        timeout=10
+    )
+
+    print("LINE status:", res.status_code, res.text)
 
 async def accept_risk_popup_if_any(page):
     try:
